@@ -21,24 +21,17 @@ namespace TuneGenieParser
         private const string UserAgent = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)";
 
         /// <summary>
-        /// Radio status call sign
-        /// </summary>
-        private string callSign;
-
-        /// <summary>
         /// Base url for web requests
         /// </summary>
-        private string baseUrl = "http://{0}.tunegenie.com/";
+        private readonly string baseUrl;
 
         /// <summary>
         /// Initializes a new instance of the Parser class
         /// </summary>
-        /// <param name="callSign">Radio station call sign
-        /// <example>"kndd" in http://kndd.tunegenie.com/</param></example> 
+        /// <param name="callSign">Radio station call sign</param>
         public Parser(string callSign)
         {
-            this.callSign = callSign;
-            this.baseUrl = string.Format("http://{0}.tunegenie.com/", callSign);
+            this.baseUrl = $"http://{callSign}.tunegenie.com";
         }
 
         /// <summary>
@@ -47,8 +40,7 @@ namespace TuneGenieParser
         /// <returns>List of songs</returns>
         public NowPlaying GetLastHour()
         {
-            string response = string.Empty;
-            return this.GetLastHour(out response);
+            return this.GetLastHour(out _);
         }
 
         /// <summary>
@@ -67,8 +59,7 @@ namespace TuneGenieParser
         /// <returns>List of songs</returns>
         public NowPlaying GetLastDay()
         {
-            string response = string.Empty;
-            return this.GetLastDay(out response);
+            return this.GetLastDay(out _);
         }
 
         /// <summary>
@@ -90,10 +81,9 @@ namespace TuneGenieParser
         /// <returns>List of songs</returns>
         public NowPlaying GetNowPlaying(DateTime since, DateTime until, out string response)
         {
-            string url = string.Format(
-                this.baseUrl + "api/v1/brand/nowplaying/?since={0}&until={1}",
-                HttpUtility.UrlEncode(since.ToString("o")),
-                HttpUtility.UrlEncode(until.ToString("o")));
+            string sinceString = HttpUtility.UrlEncode(since.ToString("o"));
+            string untilString = HttpUtility.UrlEncode(until.ToString("o"));
+            string url = $"{this.baseUrl}/api/v1/brand/nowplaying/?since={sinceString}&until={untilString}";
 
             response = this.CreateWebClient().DownloadString(url);
             return this.Deserialize<NowPlaying>(response);
@@ -117,7 +107,7 @@ namespace TuneGenieParser
         private WebClient CreateWebClient()
         {
             WebClient wc = new WebClient();
-            wc.Headers.Add("Referer", string.Format(this.baseUrl, this.callSign) + "onair/");
+            wc.Headers.Add("Referer", $"{this.baseUrl}/onair/");
             wc.Headers.Add("X-Requested-With", "XMLHttpRequest");
             wc.Headers[HttpRequestHeader.UserAgent] = UserAgent;
             return wc;

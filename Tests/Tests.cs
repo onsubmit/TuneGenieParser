@@ -19,11 +19,11 @@ namespace Tests
         /// Basic unit test
         /// </summary>
         [TestMethod]
-        public void TestMethod1()
+        public void GetLastHour()
         {
-            string response;
             Parser p = new Parser("kndd");
-            NowPlaying nowPlaying = p.GetLastHour(out response);
+            NowPlaying nowPlaying = p.GetLastHour(out string response);
+            Console.WriteLine(response);
         }
     }
 }
